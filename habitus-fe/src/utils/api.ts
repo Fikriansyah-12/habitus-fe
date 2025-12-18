@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
-import type { LoginDto, LoginResponseDto, OnsiteRequestDto, CreateOnsiteRequestDto, UpdateOnsiteRequestDto, UpdateOnsiteRequestStatusDto, QuoteDto, BackendOnsiteRequest, BackendQuote } from '../types'
+import type { LoginDto, LoginResponseDto, LogoutResponseDto, OnsiteRequestDto, CreateOnsiteRequestDto, UpdateOnsiteRequestDto, UpdateOnsiteRequestStatusDto, QuoteDto, BackendOnsiteRequest, BackendQuote } from '../types'
 import { StorageService } from './storage'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'
@@ -111,6 +111,11 @@ class ApiClient {
       user: data.user,
       token: token
     } as LoginResponseDto
+  }
+
+  async logout(): Promise<LogoutResponseDto> {
+    const response = await this.client.post<LogoutResponseDto>('/auth/logout', {})
+    return response.data
   }
 
   // Onsite Requests

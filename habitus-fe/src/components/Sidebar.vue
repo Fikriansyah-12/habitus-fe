@@ -1,3 +1,109 @@
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
+import Iconify from './Iconify.vue'
+import { apiClient } from '@/utils/api'
+import { StorageService } from '@/utils/storage'
+
+interface MenuItem {
+  path: string
+  title: string
+  icon: string
+}
+
+const router = useRouter()
+const route = useRoute()
+
+const isOpen = ref(true)
+const userName = ref('')
+const userEmail = ref('')
+const expandedMenus = ref(new Set<string>())
+
+const menuItems = computed<MenuItem[]>(() => {
+  return router
+    .getRoutes()
+    .filter(
+      (route) =>
+        route.meta?.showSidebar &&
+        route.meta?.sidebarTitle &&
+        route.meta?.sidebarIcon &&
+        !route.meta?.submenu
+    )
+    .map((route) => ({
+      path: route.path,
+      title: (route.meta?.sidebarTitle as string) || '',
+      icon: (route.meta?.sidebarIcon as string) || ''
+    }))
+})
+
+const hasSubmenu = (parentPath: string): boolean => {
+  return router
+    .getRoutes()
+    .some((route) => route.meta?.parentPath === parentPath)
+}
+
+const getSubmenuItems = (parentPath: string): MenuItem[] => {
+  return router
+    .getRoutes()
+    .filter(
+      (route) =>
+        route.meta?.parentPath === parentPath &&
+        route.meta?.submenu &&
+        route.meta?.sidebarTitle &&
+        route.meta?.sidebarIcon
+    )
+    .map((route) => ({
+      path: route.path,
+      title: (route.meta?.sidebarTitle as string) || '',
+      icon: (route.meta?.sidebarIcon as string) || ''
+    }))
+}
+
+const toggleSidebar = () => {
+  isOpen.value = !isOpen.value
+}
+
+const toggleSubmenu = (path: string) => {
+  if (expandedMenus.value.has(path)) {
+    expandedMenus.value.delete(path)
+  } else {
+    expandedMenus.value.add(path)
+  }
+}
+
+const isActive = (path: string): boolean => {
+  return route.path === path || route.path.startsWith(path + '/')
+}
+
+const isParentActive = (parentPath: string): boolean => {
+  const submenuItems = getSubmenuItems(parentPath)
+  return submenuItems.some((item) => isActive(item.path))
+}
+
+const logout = async () => {
+  try {
+    await apiClient.logout()
+  } catch (error) {
+    console.error('Logout error:', error)
+  } finally {
+    StorageService.clear()
+    router.push('/login')
+  }
+}
+
+onMounted(() => {
+  const user = StorageService.getUser()
+  const email = StorageService.getEmail()
+  
+  userEmail.value = email || 'User'
+  userName.value = user?.name || 'User'
+
+  if (isParentActive('/users')) {
+    expandedMenus.value.add('/users')
+  }
+})
+</script>
+
 <template>
   <aside
     :class="[
@@ -98,18 +204,13 @@
     <!-- User Section -->
     <div v-if="isOpen" class="border-t border-gray-700 p-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-          <span class="text-sm font-semibold">
-            {{ userInitials }}
-          </span>
-        </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium truncate">{{ userName }}</p>
           <p class="text-xs text-gray-400 truncate">{{ userEmail }}</p>
         </div>
         <button
           @click="logout"
-          class="p-2 hover:bg-gray-800 rounded-lg transition duration-200 flex-shrink-0"
+          class="p-2 hover:bg-red-800 bg-red-500/70 rounded-lg transition duration-200 flex-shrink-0"
           title="Logout"
         >
           <Iconify icon="mdi:logout" :width="16" :height="16" />
@@ -119,111 +220,6 @@
   </aside>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute, RouterLink } from 'vue-router'
-import Iconify from './Iconify.vue'
-
-interface MenuItem {
-  path: string
-  title: string
-  icon: string
-}
-
-const router = useRouter()
-const route = useRoute()
-
-const isOpen = ref(true)
-const userName = ref('User')
-const userEmail = ref('')
-const expandedMenus = ref(new Set<string>())
-
-const menuItems = computed<MenuItem[]>(() => {
-  return router
-    .getRoutes()
-    .filter(
-      (route) =>
-        route.meta?.showSidebar &&
-        route.meta?.sidebarTitle &&
-        route.meta?.sidebarIcon &&
-        !route.meta?.submenu
-    )
-    .map((route) => ({
-      path: route.path,
-      title: (route.meta?.sidebarTitle as string) || '',
-      icon: (route.meta?.sidebarIcon as string) || ''
-    }))
-})
-
-const hasSubmenu = (parentPath: string): boolean => {
-  return router
-    .getRoutes()
-    .some((route) => route.meta?.parentPath === parentPath)
-}
-
-const getSubmenuItems = (parentPath: string): MenuItem[] => {
-  return router
-    .getRoutes()
-    .filter(
-      (route) =>
-        route.meta?.parentPath === parentPath &&
-        route.meta?.submenu &&
-        route.meta?.sidebarTitle &&
-        route.meta?.sidebarIcon
-    )
-    .map((route) => ({
-      path: route.path,
-      title: (route.meta?.sidebarTitle as string) || '',
-      icon: (route.meta?.sidebarIcon as string) || ''
-    }))
-}
-
-const userInitials = computed(() => {
-  return userName.value
-    .split(' ')
-    .map((n) => n.charAt(0))
-    .join('')
-    .toUpperCase()
-})
-
-const toggleSidebar = () => {
-  isOpen.value = !isOpen.value
-}
-
-const toggleSubmenu = (path: string) => {
-  if (expandedMenus.value.has(path)) {
-    expandedMenus.value.delete(path)
-  } else {
-    expandedMenus.value.add(path)
-  }
-}
-
-const isActive = (path: string): boolean => {
-  return route.path === path || route.path.startsWith(path + '/')
-}
-
-const isParentActive = (parentPath: string): boolean => {
-  const submenuItems = getSubmenuItems(parentPath)
-  return submenuItems.some((item) => isActive(item.path))
-}
-
-const logout = () => {
-  localStorage.removeItem('userEmail')
-  localStorage.removeItem('userName')
-  router.push('/')
-}
-
-onMounted(() => {
-  const email = localStorage.getItem('userEmail') || 'User'
-  const name = localStorage.getItem('userName') || 'User'
-  userEmail.value = email
-  userName.value = name
-
-  if (isParentActive('/users')) {
-    expandedMenus.value.add('/users')
-  }
-})
-</script>
 
 <style scoped>
 /* Scrollbar styling */

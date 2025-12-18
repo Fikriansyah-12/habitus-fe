@@ -64,6 +64,11 @@ export interface LoginResponseDto {
   token: string
 }
 
+export interface LogoutResponseDto {
+  message: string
+  timestamp?: Date
+}
+
 export interface CreateOnsiteRequestItemDto {
   itemId?: string
   name: string
