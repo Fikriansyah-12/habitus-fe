@@ -10,7 +10,7 @@ import type {
 } from '@/types/onsite-request'
 
 class OnsiteRequestApiClient {
-  private baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'
+  private baseURL = import.meta.env.VITE_API_URL
   private axiosInstance = axios.create({
     baseURL: this.baseURL
   })

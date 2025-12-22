@@ -3,7 +3,7 @@ import type { AxiosInstance } from 'axios'
 import { StorageService } from './storage'
 import type { Quote, CreateQuoteDto, UpdateQuoteDto } from '@/types/quote'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'
+const API_BASE_URL = import.meta.env.VITE_API_URL
 
 class QuoteApiClient {
   private client: AxiosInstance
