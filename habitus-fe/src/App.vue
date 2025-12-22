@@ -18,7 +18,7 @@ onMounted(() => {
   <div class="h-screen flex relative">
     <Sidebar v-if="route.meta.showSidebar" />
     <main 
-      class="flex-1 transition-all duration-300 ease-in-out overflow-hidden"
+      class="flex-1 transition-all duration-300 ease-in-out overflow-y-auto"
       :style="route.meta.showSidebar ? {} : {}"
     >
       <router-view />
