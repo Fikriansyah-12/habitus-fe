@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Icon } from "@iconify/vue";
+import Icon from "@iconify/vue";
 </script>
 
 <template>
-<Icon v-bind="$attrs" />
+  <Icon v-bind="$attrs" />
 </template>
