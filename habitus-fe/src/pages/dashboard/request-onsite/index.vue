@@ -167,13 +167,13 @@ const formatDateTime = (dateString?: string) => {
   return new Date(dateString).toLocaleString('id-ID')
 }
 
-const handleRemoveFilter = (filterToRemove: string) => {
-  activeFilters.value = activeFilters.value.filter(f => f !== filterToRemove)
-}
+// const handleRemoveFilter = (filterToRemove: string) => {
+//   activeFilters.value = activeFilters.value.filter(f => f !== filterToRemove)
+// }
 
-const handleClearAllFilters = () => {
-  activeFilters.value = []
-}
+// const handleClearAllFilters = () => {
+//   activeFilters.value = []
+// }
 </script>
 <template>
   <div class="h-screen bg-gray-50 flex flex-col">

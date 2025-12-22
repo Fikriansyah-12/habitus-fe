@@ -3,11 +3,9 @@ import { onMounted, ref, computed } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import DataToolbar, { type FilterOption } from '@/components/DataToolbar.vue'
 import Modal from '@/components/Modal.vue'
-import { useRouter } from 'vue-router'
 import { useCustomer } from '@/composables/useCustomer'
 import { apiClient } from '@/utils/api'
 
-const router = useRouter()
 const { customers, isLoading, errorMessage, successMessage, currentCustomer, fetchAll, fetchOne, create, update, delete: deleteCustomer } = useCustomer()
 
 const searchQuery = ref('')
@@ -115,14 +113,14 @@ const closeViewModal = () => {
   showViewModal.value = false
 }
 
-const handleEditCustomer = () => {
-  if (currentCustomer.value) {
-    editFormData.value = {
-      name: currentCustomer.value.name,
-      phone: currentCustomer.value.phone
-    }
-  }
-}
+// const handleEditCustomer = () => {
+//   if (currentCustomer.value) {
+//     editFormData.value = {
+//       name: currentCustomer.value.name,
+//       phone: currentCustomer.value.phone
+//     }
+//   }
+// }
 
 const submitEditForm = async () => {
   try {

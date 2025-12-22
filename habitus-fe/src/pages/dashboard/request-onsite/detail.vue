@@ -10,7 +10,7 @@ const route = useRoute()
 const router = useRouter()
 const id = route.query.id as string
 
-const { currentRequest, requestLogs, isLoading, errorMessage, successMessage, fetchOne, fetchTimeline, updateStatus, delete: deleteRequest } = useOnsiteRequest()
+const { currentRequest, requestLogs, isLoading, errorMessage, fetchOne, fetchTimeline, updateStatus,} = useOnsiteRequest()
 
 const showStatusModal = ref(false)
 const selectedStatus = ref('')
@@ -38,10 +38,10 @@ const goBack = () => {
   router.push('/request/list')
 }
 
-const openStatusModal = (status: string) => {
-  selectedStatus.value = status
-  showStatusModal.value = true
-}
+// const openStatusModal = (status: string) => {
+//   selectedStatus.value = status
+//   showStatusModal.value = true
+// }
 const submitStatusChange = async () => {
   try {
     await updateStatus(id, { status: selectedStatus.value as OnsiteStatus })
@@ -53,20 +53,20 @@ const submitStatusChange = async () => {
 }
 
 
-const handleDelete = async () => {
-  if (confirm('Are you sure you want to delete this onsite request?')) {
-    try {
-      await deleteRequest(id)
-      router.push('/request/list')
-    } catch (error) {
-      console.error('Failed to delete request:', error)
-    }
-  }
-}
+// const handleDelete = async () => {
+//   if (confirm('Are you sure you want to delete this onsite request?')) {
+//     try {
+//       await deleteRequest(id)
+//       router.push('/request/list')
+//     } catch (error) {
+//       console.error('Failed to delete request:', error)
+//     }
+//   }
+// }
 
-const goToEdit = () => {
-  router.push({ path: '/request/edit', query: { id } })
-}
+// const goToEdit = () => {
+//   router.push({ path: '/request/edit', query: { id } })
+// }
 
 onMounted(async () => {
   if (!id) {
