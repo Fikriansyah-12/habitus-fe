@@ -14,9 +14,9 @@
         </div>
 
         <!-- Filter Dropdown -->
-        <div v-if="filters.length > 0" class="relative">
+        <div v-if="filters.length > 0" class="relative z-20">
           <button
-            @click="toggleFilterMenu"
+            @click.stop="toggleFilterMenu"
             :class="[
               'flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition',
               hasActiveFilter ? 'border-blue-500 bg-blue-50' : ''
@@ -31,7 +31,8 @@
           <Transition name="fade">
             <div
               v-if="showFilterMenu"
-              class="absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-xs"
+              @click.stop
+              class="absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50 min-w-xs"
             >
               <div class="p-4 space-y-3">
                 <div v-for="filter in filters" :key="filter.id" class="flex items-center gap-2">
@@ -197,20 +198,6 @@ const handleRefresh = async () => {
     isRefreshing.value = false
   }
 }
-
-// Close filter menu when clicking outside
-const closeFilterMenu = () => {
-  showFilterMenu.value = false
-}
-
-// Watch to close menu when filters are applied
-watch(() => showFilterMenu.value, (newVal) => {
-  if (newVal) {
-    document.addEventListener('click', closeFilterMenu)
-  } else {
-    document.removeEventListener('click', closeFilterMenu)
-  }
-})
 </script>
 
 <style scoped>

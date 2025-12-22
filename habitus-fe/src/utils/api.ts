@@ -5,7 +5,6 @@ import { StorageService } from './storage'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'
 
-// Mapper functions to convert backend response to frontend format
 const mapBackendOnsiteRequest = (item: BackendOnsiteRequest): OnsiteRequestDto => {
   const itemName = item.items?.[0]?.name || ''
   
@@ -14,7 +13,7 @@ const mapBackendOnsiteRequest = (item: BackendOnsiteRequest): OnsiteRequestDto =
     purpose: item.purpose,
     startDate: item.onsiteAt,
     onsiteAt: item.onsiteAt,
-    endDate: item.onsiteAt, // Backend only has one date field
+    endDate: item.onsiteAt,
     location: item.address,
     address: item.address,
     notes: '',
@@ -32,7 +31,6 @@ const mapBackendOnsiteRequest = (item: BackendOnsiteRequest): OnsiteRequestDto =
   }
 }
 
-// Used in quote mapping methods
 const mapBackendQuote = (quote: any): QuoteDto => ({
   id: quote.id,
   quoteNo: quote.quoteNo,
@@ -41,7 +39,6 @@ const mapBackendQuote = (quote: any): QuoteDto => ({
   items: quote.items || [],
   createdAt: quote.createdAt || '',
   updatedAt: quote.updatedAt || '',
-  // Legacy fields for backward compatibility
   itemName: quote.itemName || quote.items?.[0]?.name || '',
   quantity: quote.quantity || quote.items?.[0]?.qty || 0,
   customerName: quote.customer?.name || quote.customerName || '',
@@ -90,15 +87,10 @@ class ApiClient {
     )
   }
 
-  // Auth
   async login(credentials: LoginDto): Promise<LoginResponseDto> {
     const response = await this.client.post<any>('/auth/login', credentials)
     const data = response.data
-    
-    // Handle different response formats from backend
-    console.log('Raw login response:', data);
-    
-    // Support multiple token field names
+
     const token = data.token || data.accessToken || data.access_token || data.jwt
     
     if (!token) {
@@ -106,7 +98,6 @@ class ApiClient {
       throw new Error('Login response missing token field');
     }
     
-    // Return standardized format
     return {
       user: data.user,
       token: token
@@ -150,7 +141,6 @@ class ApiClient {
   }
 
   async createOnsiteRequest(data: CreateOnsiteRequestDto): Promise<OnsiteRequestDto> {
-    console.log('Creating onsite request with payload:', JSON.stringify(data, null, 2))
     try {
       const response = await this.client.post<any>('/onsite-requests', data)
       
@@ -166,7 +156,6 @@ class ApiClient {
   }
 
   async updateOnsiteRequest(id: string, data: UpdateOnsiteRequestDto): Promise<OnsiteRequestDto> {
-    console.log('Updating onsite request with payload:', JSON.stringify(data, null, 2))
     try {
       const response = await this.client.patch<any>(`/onsite-requests/${id}`, data)
       
@@ -199,7 +188,6 @@ class ApiClient {
     return response.data
   }
 
-  // Quotes
   async getQuotes(): Promise<QuoteDto[]> {
     const response = await this.client.get<any>('/quotes')
     const items = Array.isArray(response.data) ? response.data : (response.data?.data || [])
@@ -221,6 +209,30 @@ class ApiClient {
       return mapBackendQuote(response.data as BackendQuote)
     }
     return response.data as QuoteDto
+  }
+
+  async exportOnsiteRequestsToExcel(params?: any): Promise<Blob> {
+    const response = await this.client.get('/onsite-requests/export/excel', {
+      params,
+      responseType: 'blob'
+    })
+    return response.data
+  }
+
+  async exportQuotesToExcel(params?: any): Promise<Blob> {
+    const response = await this.client.get('/quotes/export/excel', {
+      params,
+      responseType: 'blob'
+    })
+    return response.data
+  }
+
+  async exportCustomersToExcel(params?: any): Promise<Blob> {
+    const response = await this.client.get('/customers/export/excel', {
+      params,
+      responseType: 'blob'
+    })
+    return response.data
   }
 }
 

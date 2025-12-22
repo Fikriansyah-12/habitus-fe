@@ -127,7 +127,6 @@ const isRefreshing = ref(false)
 const isDownloading = ref(false)
 
 onMounted(() => {
-  // Ambil email dari localStorage atau props
   const storedEmail = localStorage.getItem('userEmail')
   if (storedEmail) {
     userEmail.value = storedEmail

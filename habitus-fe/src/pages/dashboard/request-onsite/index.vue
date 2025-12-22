@@ -13,9 +13,9 @@ import type { OnsiteRequestDto } from '@/types'
 const router = useRouter()
 
 const filterOptions: FilterOption[] = [
-  { id: 'Requested', label: 'Requested' },
-  { id: 'Approved', label: 'Approved' },
-  { id: 'Rejected', label: 'Rejected' }
+  { id: 'REQUESTED', label: 'Requested' },
+  { id: 'APPROVED', label: 'Approved' },
+  { id: 'REJECTED', label: 'Rejected' }
 ]
 
 const searchQuery = ref('')
@@ -87,8 +87,37 @@ const editItem = (id: string) => {
   router.push({ name: 'RequestEdit', query: { id } })
 }
 
-const handleExport = () => {
-  alert('Export data clicked!')
+const viewItem = (id: string) => {
+  router.push({ name: 'RequestDetail', query: { id } })
+}
+
+const handleExport = async () => {
+  try {
+    isLoading.value = true
+    
+    // Build export params with active filters
+    const params: any = {}
+    if (activeFilters.value.length > 0) {
+      params.status = activeFilters.value.join(',')
+    }
+    
+    const blob = await apiClient.exportOnsiteRequestsToExcel(params)
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `onsite-requests-${new Date().toISOString().split('T')[0]}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error: any) {
+    const message = error.response?.data?.message || error.message || 'Failed to export data'
+    errorMessage.value = `Export failed: ${message}`
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const handleRefresh = async () => {
@@ -136,6 +165,14 @@ const formatDate = (dateString?: string) => {
 const formatDateTime = (dateString?: string) => {
   if (!dateString) return '-'
   return new Date(dateString).toLocaleString('id-ID')
+}
+
+const handleRemoveFilter = (filterToRemove: string) => {
+  activeFilters.value = activeFilters.value.filter(f => f !== filterToRemove)
+}
+
+const handleClearAllFilters = () => {
+  activeFilters.value = []
 }
 </script>
 <template>
@@ -185,7 +222,7 @@ const formatDateTime = (dateString?: string) => {
 
         <!-- Table -->
         <div v-else class="w-full px-6">
-          <div class="bg-white rounded-lg shadow mt-6">
+          <div class="bg-white rounded-lg shadow -mt-5">
             <div class="overflow-x-auto">
               <table class="w-full min-w-max">
                 <thead class="bg-gray-50 border-b sticky top-0">
@@ -269,7 +306,7 @@ const formatDateTime = (dateString?: string) => {
                           <Iconify icon="mdi:pencil" :width="16" :height="16" />
                         </button>
                         <button
-                          @click="editItem(request.id)"
+                          @click="viewItem(request.id)"
                           class="text-blue-500 bg-blue-500/30 rounded-lg p-2 hover:text-blue-600 font-medium"
                           title="View"
                         >

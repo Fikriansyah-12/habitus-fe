@@ -4,6 +4,9 @@ import DashboardPage from '../pages/dashboard/index.vue'
 import RequestList from '../pages/dashboard/request-onsite/index.vue'
 import RequestForm from '../pages/dashboard/request-onsite/form.vue'
 import RequestEdit from '../pages/dashboard/request-onsite/edit.vue'
+import RequestDetail from '../pages/dashboard/request-onsite/detail.vue'
+import CustomerList from '../pages/dashboard/customer/index.vue'
+import QuoteList from '../pages/dashboard/quote/index.vue'
 
 export interface RouteMetaWithMenu {
   requiresAuth?: boolean
@@ -41,7 +44,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/request',
-    name: 'Users',
+    name: 'Request',
     component: { },
     meta: {
       requiresAuth: true,
@@ -87,15 +90,63 @@ const routes: RouteRecordRaw[] = [
       parentPath: '/request'
     }
    },
-    {
-    path: '/page-dummy',
-    name: 'page-dummy',
-    component: { template: '<div class="p-6"><h1>page-dummy Page (Dummy)</h1></div>' },
+   {
+    path: '/request/detail',
+    name: 'RequestDetail',
+    component: RequestDetail,
     meta: {
       requiresAuth: true,
       showSidebar: true,
-      sidebarTitle: 'Dummt  y Page',
+      submenu: true,
+      parentPath: '/request'
+    }
+   },
+    {
+    path: '/customer',
+    name: 'Customer',
+    component: {},
+    meta: {
+      requiresAuth: true,
+      showSidebar: true,
+      sidebarTitle: 'Customer',
       sidebarIcon: 'mdi:account-group'
+    }
+  },
+  {
+    path: '/customer/list',
+    name: 'CustomerList',
+    component: CustomerList,
+    meta: {
+      requiresAuth: true,
+      showSidebar: true,
+      sidebarTitle: 'Customer List',
+      sidebarIcon: 'lsicon:user-all-filled',
+      submenu: true,
+      parentPath: '/customer'
+    }
+  },
+  {
+    path: '/quote',
+    name: 'Quote',
+    component: {},
+    meta: {
+      requiresAuth: true,
+      showSidebar: true,
+      sidebarTitle: 'Quote',
+      sidebarIcon: 'mdi:file-document'
+    }
+  },
+  {
+    path: '/quote/list',
+    name: 'QuoteList',
+    component: QuoteList,
+    meta: {
+      requiresAuth: true,
+      showSidebar: true,
+      sidebarTitle: 'Quote List',
+      sidebarIcon: 'lsicon:list-filled',
+      submenu: true,
+      parentPath: '/quote'
     }
   },
   {

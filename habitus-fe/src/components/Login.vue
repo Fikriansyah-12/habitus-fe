@@ -1,15 +1,12 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
-      <!-- Header -->
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
         <p class="text-gray-600">Sign in to your account</p>
       </div>
 
-      <!-- Form -->
       <form @submit.prevent="handleLogin" class="space-y-6">
-        <!-- Email Input -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
             Email Address
@@ -24,7 +21,6 @@
           />
         </div>
 
-        <!-- Password Input -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
             Password
@@ -39,7 +35,6 @@
           />
         </div>
 
-        <!-- Remember Me & Forgot Password -->
         <div class="flex items-center justify-between">
           <label class="flex items-center">
             <input
@@ -52,12 +47,10 @@
           <a href="#" class="text-sm text-blue-500 hover:text-blue-600">Forgot password?</a>
         </div>
 
-        <!-- Error Message -->
         <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
           {{ errorMessage }}
         </div>
 
-        <!-- Submit Button -->
         <button
           type="submit"
           :disabled="isLoading"
@@ -68,7 +61,6 @@
         </button>
       </form>
 
-      <!-- Divider -->
       <div class="relative my-8">
         <div class="absolute inset-0 flex items-center">
           <div class="w-full border-t border-gray-300"></div>
@@ -78,7 +70,6 @@
         </div>
       </div>
 
-      <!-- Social Login Buttons -->
       <div class="grid grid-cols-2 gap-4">
         <button
           type="button"
@@ -100,8 +91,7 @@
         </button>
       </div>
 
-      <!-- Sign Up Link -->
-      <p class="text-center text-sm text-gray-600 mt-8">
+        <p class="text-center text-sm text-gray-600 mt-8">
         Don't have an account?
         <a href="#" class="text-blue-500 hover:text-blue-600 font-medium">Sign up</a>
       </p>
@@ -121,7 +111,6 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 
 const handleLogin = async () => {
-  // Validasi dasar
   if (!email.value || !password.value) {
     errorMessage.value = 'Please fill in all fields'
     return
@@ -131,24 +120,13 @@ const handleLogin = async () => {
   errorMessage.value = ''
 
   try {
-    // Simulasi API call
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // Simulasi login berhasil
-    console.log('Login berhasil dengan:', {
-      email: email.value,
-      rememberMe: rememberMe.value
-    })
-    
-    // Simpan email ke localStorage
     localStorage.setItem('userEmail', email.value)
     
-    // Reset form
     email.value = ''
     password.value = ''
     rememberMe.value = false
     
-    // Redirect ke dashboard
     router.push('/dashboard')
   } catch (error) {
     errorMessage.value = 'Login failed. Please try again.'
@@ -159,7 +137,6 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Smooth transitions untuk input */
 input {
   transition: all 0.3s ease;
 }

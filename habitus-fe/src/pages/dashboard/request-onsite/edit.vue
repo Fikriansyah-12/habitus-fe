@@ -4,16 +4,20 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { apiClient } from "@/utils/api";
 import { StorageService } from "@/utils/storage";
+import { useOnsiteRequest } from "@/composables/useOnsiteRequest";
 import type { UpdateOnsiteRequestDto } from "@/types";
 
 const route = useRoute();
 const router = useRouter();
 const id = route.query.id as string;
 
+const { fetchTimeline, requestLogs } = useOnsiteRequest();
+
 const isLoading = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
 const userName = ref("");
+const showTimeline = ref(false);
 
 const formatToDatetimeLocal = (isoString: string): string => {
   if (!isoString) return "";
@@ -70,6 +74,7 @@ onMounted(async () => {
   }
 
   await loadRequest();
+  await loadTimeline();
 });
 
 const loadRequest = async () => {
@@ -191,6 +196,24 @@ const updateStatus = async (newStatus: string) => {
 
 const handleCancel = () => {
   router.push("/request/list");
+};
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const loadTimeline = async () => {
+  try {
+    await fetchTimeline(id);
+  } catch (error) {
+    console.error('Failed to load timeline:', error);
+  }
 };
 </script>
 
@@ -360,6 +383,87 @@ const handleCancel = () => {
                 </button>
               </div>
             </form>
+
+            <!-- Timeline Section -->
+            <div v-if="requestLogs.length > 0" class="mt-8 pt-8 border-t">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-gray-900">Activity Timeline</h2>
+                <button
+                  @click="showTimeline = !showTimeline"
+                  class="text-sm text-cyan-600 hover:text-cyan-700 font-medium"
+                >
+                  {{ showTimeline ? 'Hide' : 'Show' }} Timeline
+                </button>
+              </div>
+
+              <div v-if="showTimeline" class="space-y-4">
+                <div
+                  v-for="(log, index) in requestLogs"
+                  :key="log.id"
+                  class="flex gap-4"
+                >
+                  <!-- Timeline Dot and Line -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-3 h-3 rounded-full bg-cyan-600 mt-2"></div>
+                    <div
+                      v-if="index < requestLogs.length - 1"
+                      class="w-0.5 h-12 bg-gray-300 my-1"
+                    ></div>
+                  </div>
+
+                  <!-- Timeline Content -->
+                  <div class="pb-4 flex-1">
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div class="flex justify-between items-start mb-2">
+                        <div>
+                          <p class="font-semibold text-gray-900">{{ log.action }}</p>
+                          <p class="text-sm text-gray-600 mt-1">{{ log.description }}</p>
+                        </div>
+                        <span class="text-xs text-gray-500">
+                          {{ formatDate(log.timestamp) }}
+                        </span>
+                      </div>
+
+                      <div class="flex items-center gap-2 mt-3 text-xs">
+                        <span class="text-gray-600">By:</span>
+                        <span class="font-medium text-gray-900">{{ log.changedBy?.name }}</span>
+                        <span class="text-gray-500">({{ log.changedBy?.email }})</span>
+                      </div>
+
+                      <!-- Status Change Info -->
+                      <div
+                        v-if="log.oldStatus || log.newStatus"
+                        class="mt-3 text-xs bg-blue-50 p-2 rounded border border-blue-200"
+                      >
+                        <span class="text-gray-700">
+                          Status:
+                          <span class="font-medium text-gray-900">{{ log.oldStatus }}</span>
+                          <span class="text-gray-600">→</span>
+                          <span class="font-medium text-cyan-600">{{ log.newStatus }}</span>
+                        </span>
+                      </div>
+
+                      <!-- Metadata -->
+                      <div v-if="log.metadata && Object.keys(log.metadata).length > 0" class="mt-3">
+                        <p class="text-xs text-gray-600 mb-1">Details:</p>
+                        <div class="text-xs bg-white p-2 rounded border border-gray-200">
+                          <div v-for="(value, key) in log.metadata" :key="key" class="text-gray-700">
+                            <span class="font-medium">{{ key }}:</span>
+                            <span class="text-gray-600">{{ value }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                <p class="text-gray-500">No activity logs yet</p>
+              </div>
+            </div>
+            <div v-else class="mt-8 pt-8 border-t p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+              <p class="text-gray-500">No activity logs available</p>
+            </div>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Button from "../../components/Button.vue";
 import { apiClient } from "../../utils/api";
@@ -14,6 +14,17 @@ const rememberMe = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref("");
 
+// Load saved email and rememberMe preference on mount
+onMounted(() => {
+  const savedEmail = localStorage.getItem('rememberedEmail');
+  const savedRemember = localStorage.getItem('rememberMe') === 'true';
+  
+  if (savedEmail && savedRemember) {
+    email.value = savedEmail;
+    rememberMe.value = true;
+  }
+});
+
 const handleLogin = async () => {
   if (!email.value || !password.value) {
     errorMessage.value = "Please fill in all fields";
@@ -24,24 +35,25 @@ const handleLogin = async () => {
   errorMessage.value = "";
 
   try {
-    console.log('=== LOGIN ATTEMPT ===');
-    console.log('Email:', email.value);
-    console.log('API URL:', import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1');
-    
     const response = await apiClient.login({
       email: email.value,
       password: password.value
     });
 
-    // Validate token exists
     if (!response.token || response.token === 'undefined') {
       throw new Error('Login response missing valid token');
     }
 
-    console.log('✓ Login successful');
-    console.log('Response:', { user: response.user, token: response.token?.substring(0, 20) + '...' });
+    // Handle "Remember Me"
+    if (rememberMe.value) {
+      localStorage.setItem('rememberedEmail', email.value);
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      // Clear saved email if unchecked
+      localStorage.removeItem('rememberedEmail');
+      localStorage.removeItem('rememberMe');
+    }
 
-    // Save to localStorage
     StorageService.setUser(response.user);
     StorageService.setToken(response.token);
     StorageService.setEmail(response.user.email);
