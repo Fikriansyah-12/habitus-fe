@@ -3,9 +3,7 @@ import type { AxiosInstance } from 'axios'
 import type { LoginDto, LoginResponseDto, LogoutResponseDto, OnsiteRequestDto, CreateOnsiteRequestDto, UpdateOnsiteRequestDto, UpdateOnsiteRequestStatusDto, QuoteDto, BackendOnsiteRequest, BackendQuote } from '../types'
 import { StorageService } from './storage'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://habitus-be-production.up.railway.app/api/v1/"
-console.log(import.meta.env.VITE_API_URL,'UR');
-
+const API_BASE_URL = import.meta.env.VITE_API_URL
 
 const mapBackendOnsiteRequest = (item: BackendOnsiteRequest): OnsiteRequestDto => {
   const itemName = item.items?.[0]?.name || ''
